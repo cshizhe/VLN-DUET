@@ -1,0 +1,10 @@
+jsonlines==2.0.0
+tqdm==4.62.0
+easydict==1.9
+Shapely==1.7.1
+h5py==2.10.0
+torch==1.7.1+cu101
+networkx==2.5.1
+numpy==1.20.3
+tensorboardX==2.4.1
+transformers==4.12.5
