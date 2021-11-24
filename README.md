@@ -38,3 +38,6 @@ Combine behavior cloning and auxiliary proxy tasks in pretraining:
 cd map_nav_src
 bash scripts/run_reverie.sh # (run_soon.sh, run_r2r.sh)
 ```
+
+## Examples
+Video examples can be found [here](https://www.dropbox.com/sh/g8vqygz7fgerg9s/AAAZ3gd9WdReUgRezxLnb1f_a?dl=0).
