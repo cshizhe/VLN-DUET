@@ -1,56 +1,50 @@
-DATA_ROOT=../datasets
 
 train_alg=dagger
 
 features=vitbase
 ft_dim=768
-obj_features=butd
-obj_ft_dim=2048
+obj_features=vitbase
+obj_ft_dim=768
 
 ngpus=1
 seed=0
 
 name=${train_alg}-${features}
-name=${name}-seed.${seed} 
+name=${name}-seed.${seed}
+name=${name}-init.aug.45k
 
-outdir=${DATA_ROOT}/SOON/exprs_map/finetune/${name}
-
+outdir=${DATA_ROOT}/R2R/exprs_map/finetune/${name}
 
 flag="--root_dir ${DATA_ROOT}
-      --dataset soon
+      --dataset r4r
       --output_dir ${outdir}
       --world_size ${ngpus}
       --seed ${seed}
-      --tokenizer bert
+      --tokenizer bert      
 
       --enc_full_graph
       --graph_sprels
       --fusion dynamic
-      --multi_endpoints
 
-      --dagger_sample sample
-
+      --expert_policy spl
       --train_alg ${train_alg}
       
       --num_l_layers 9
       --num_x_layers 4
       --num_pano_layers 2
       
-      --max_action_len 20
-      --max_instr_len 100
-      --max_objects 100
+      --max_action_len 15
+      --max_instr_len 200
 
-      --batch_size 2
+      --batch_size 8
       --lr 1e-5
       --iters 200000
       --log_every 1000
       --optim adamW
 
       --features ${features}
-      --obj_features ${obj_features}
       --image_feat_size ${ft_dim}
       --angle_feat_size 4
-      --obj_feat_size ${obj_ft_dim}
 
       --ml_weight 0.2   
 
@@ -59,13 +53,14 @@ flag="--root_dir ${DATA_ROOT}
       
       --gamma 0."
 
-CUDA_VISIBLE_DEVICES='0' python soon/main.py $flag  \
+# train
+CUDA_VISIBLE_DEVICES='0' python r2r/main_nav.py $flag  \
       --tokenizer bert \
       --bert_ckpt_file 'put the pretrained model (see pretrain_src) here' \
       --eval_first
 
 # test
-CUDA_VISIBLE_DEVICES='0' python soon/main.py $flag  \
+CUDA_VISIBLE_DEVICES='0' python r2r/main_nav.py $flag  \
       --tokenizer bert \
-      --resume_file ../datasets/SOON/trained_models/best_val_unseen_house \
+      --resume_file ../datasets/R2R/trained_models/best_val_unseen \
       --test --submit

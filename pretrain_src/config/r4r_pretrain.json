@@ -3,17 +3,14 @@
     "checkpoint": null,
     "output_dir": "",
     "mrc_mask_prob": 0.15,
-    "itm_neg_imgs": 5,
-    "nearby_vp_steps": null,
-    "max_objects": 100,
     "max_txt_len": 200,
     "train_batch_size": 32,
     "val_batch_size": 32,
     "gradient_accumulation_steps": 1,
     "learning_rate": 5e-05,
-    "valid_steps": 2000,
+    "valid_steps": 5000,
     "log_steps": 1000,
-    "num_train_steps": 40000,
+    "num_train_steps": 100000,
     "optim": "adamw",
     "betas": [
         0.9,
@@ -30,24 +27,19 @@
     "init_pretrained": "lxmert",
 
     "train_datasets": {
-        "SOON": {
-            "name": "SOON",
-            "train_traj_files": ["../datasets/SOON/annotations/pretrain_obj/train_enc.jsonl"],
-            "val_seen_traj_files": ["../datasets/SOON/annotations/pretrain_obj/val_unseen_instrs_enc.jsonl"],
-            "val_unseen_traj_files": ["../datasets/SOON/annotations/pretrain_obj/val_unseen_house_enc.jsonl"],
+        "R4R": {
+            "name": "R4R",
+            "train_traj_files": ["../datasets/R4R/annotations/pretrain_map/R4R_train_enc.jsonl"],
+            "val_seen_traj_files": ["../datasets/R4R/annotations/pretrain_map/R4R_val_seen_enc.jsonl"],
+            "val_unseen_traj_files": ["../datasets/R4R/annotations/pretrain_map/R4R_val_unseen_sampled_enc.jsonl"],
             "connectivity_dir": "../datasets/R2R/connectivity",
             "img_ft_file": "../datasets/R2R/features/pth_vit_base_patch16_224_imagenet.hdf5",
-            "obj_ft_file": "../datasets/SOON/features/filtered_butd_bboxes.hdf5",
             "scanvp_cands_file": "../datasets/R2R/annotations/scanvp_candview_relangles.json",
             "tasks": [
                 "mlm",
-                "mrc",
-                "sap",
-                "og"
+                "sap"
             ],
             "mix_ratio": [
-                1,
-                1,
                 1,
                 1
             ]

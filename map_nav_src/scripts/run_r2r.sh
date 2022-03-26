@@ -1,3 +1,4 @@
+DATA_ROOT=../datasets
 
 train_alg=dagger
 
@@ -56,7 +57,7 @@ flag="--root_dir ${DATA_ROOT}
 # train
 CUDA_VISIBLE_DEVICES='0' python r2r/main_nav.py $flag  \
       --tokenizer bert \
-      --bert_ckpt_file '' \
+      --bert_ckpt_file 'put the pretrained model (see pretrain_src) here' \
       --eval_first
 
 # test

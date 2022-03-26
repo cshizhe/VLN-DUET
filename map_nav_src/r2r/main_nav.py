@@ -59,8 +59,10 @@ def build_dataset(args, rank=0, is_test=False):
 
     # val_env_names = ['val_train_seen']
     val_env_names = ['val_train_seen', 'val_seen', 'val_unseen']
+    if args.dataset == 'r4r' and (not args.test):
+        val_env_names[-1] == 'val_unseen_sampled'
     
-    if args.submit:
+    if args.submit and args.dataset != 'r4r':
         val_env_names.append('test')
         
     val_envs = {}
@@ -129,6 +131,8 @@ def train(args, train_env, val_envs, aug_env=None, rank=-1):
         )
 
     best_val = {'val_unseen': {"spl": 0., "sr": 0., "state":""}}
+    if args.dataset == 'r4r':
+        best_val = {'val_unseen_sampled': {"spl": 0., "sr": 0., "state":""}}
     
     for idx in range(start_iter, start_iter+args.iters, args.log_every):
         listner.logs = defaultdict(list)

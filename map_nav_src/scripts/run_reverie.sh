@@ -61,7 +61,7 @@ flag="--root_dir ${DATA_ROOT}
 # train
 CUDA_VISIBLE_DEVICES='0' python reverie/main_nav_obj.py $flag  \
       --tokenizer bert \
-      --bert_ckpt_file '' \
+      --bert_ckpt_file 'put the pretrained model (see pretrain_src) here' \
       --eval_first
 
 # test

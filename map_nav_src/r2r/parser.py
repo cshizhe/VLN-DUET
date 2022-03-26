@@ -6,7 +6,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="")
 
     parser.add_argument('--root_dir', type=str, default='../datasets')
-    parser.add_argument('--dataset', type=str, default='r2r', choices=['r2r'])
+    parser.add_argument('--dataset', type=str, default='r2r', choices=['r2r', 'r4r'])
     parser.add_argument('--output_dir', type=str, default='default', help='experiment id')
     parser.add_argument('--seed', type=int, default=0)
 

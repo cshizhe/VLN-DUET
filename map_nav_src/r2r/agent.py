@@ -236,6 +236,54 @@ class GMapNavAgent(Seq2SeqAgent):
 
         return torch.from_numpy(a).cuda()
 
+    def _teacher_action_r4r(
+        self, obs, vpids, ended, visited_masks=None, imitation_learning=False, t=None, traj=None
+    ):
+        """R4R is not the shortest path. The goal location can be visited nodes.
+        """
+        a = np.zeros(len(obs), dtype=np.int64)
+        for i, ob in enumerate(obs):
+            if ended[i]:                                            # Just ignore this index
+                a[i] = self.args.ignoreid
+            else:
+                if imitation_learning:
+                    assert ob['viewpoint'] == ob['gt_path'][t]
+                    if t == len(ob['gt_path']) - 1:
+                        a[i] = 0    # stop
+                    else:
+                        goal_vp = ob['gt_path'][t + 1]
+                        for j, vpid in enumerate(vpids[i]):
+                            if goal_vp == vpid:
+                                a[i] = j
+                                break
+                else:
+                    if ob['viewpoint'] == ob['gt_path'][-1]:
+                        a[i] = 0    # Stop if arrived 
+                    else:
+                        scan = ob['scan']
+                        cur_vp = ob['viewpoint']
+                        min_idx, min_dist = self.args.ignoreid, float('inf')
+                        for j, vpid in enumerate(vpids[i]):
+                            if j > 0 and ((visited_masks is None) or (not visited_masks[i][j])):
+                                if self.args.expert_policy == 'ndtw':
+                                    dist = - cal_dtw(
+                                        self.env.shortest_distances[scan], 
+                                        sum(traj[i]['path'], []) + self.env.shortest_paths[scan][ob['viewpoint']][vpid][1:], 
+                                        ob['gt_path'], 
+                                        threshold=3.0
+                                    )['nDTW']
+                                elif self.args.expert_policy == 'spl':
+                                    # dist = min([self.env.shortest_distances[scan][vpid][end_vp] for end_vp in ob['gt_end_vps']])
+                                    dist = self.env.shortest_distances[scan][vpid][ob['gt_path'][-1]] \
+                                            + self.env.shortest_distances[scan][cur_vp][vpid]
+                                if dist < min_dist:
+                                    min_dist = dist
+                                    min_idx = j
+                        a[i] = min_idx
+                        if min_idx == self.args.ignoreid:
+                            print('scan %s: all vps are searched' % (scan))
+        return torch.from_numpy(a).cuda()
+
     def make_equiv_action(self, a_t, gmaps, obs, traj=None):
         """
         Interface between Panoramic view and Egocentric view
@@ -355,10 +403,22 @@ class GMapNavAgent(Seq2SeqAgent):
                                         
             if train_ml is not None:
                 # Supervised training
-                nav_targets = self._teacher_action(
-                    obs, nav_vpids, ended, 
-                    visited_masks=nav_inputs['gmap_visited_masks'] if self.args.fusion != 'local' else None
-                )
+                if self.args.dataset == 'r2r':
+                    # nav_targets = self._teacher_action(
+                    #     obs, nav_vpids, ended, 
+                    #     visited_masks=nav_inputs['gmap_visited_masks'] if self.args.fusion != 'local' else None
+                    # )
+                    nav_targets = self._teacher_action_r4r(
+                        obs, nav_vpids, ended, 
+                        visited_masks=nav_inputs['gmap_visited_masks'] if self.args.fusion != 'local' else None,
+                        imitation_learning=(self.feedback=='teacher'), t=t, traj=traj
+                    )
+                elif self.args.dataset == 'r4r':
+                    nav_targets = self._teacher_action_r4r(
+                        obs, nav_vpids, ended, 
+                        visited_masks=nav_inputs['gmap_visited_masks'] if self.args.fusion != 'local' else None,
+                        imitation_learning=(self.feedback=='teacher'), t=t, traj=traj
+                    )
                 # print(t, nav_logits, nav_targets)
                 ml_loss += self.criterion(nav_logits, nav_targets)
                 # print(t, 'ml_loss', ml_loss.item(), self.criterion(nav_logits, nav_targets).item())

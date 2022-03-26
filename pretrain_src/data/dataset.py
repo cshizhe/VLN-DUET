@@ -387,7 +387,7 @@ class R2RTextPathData(ReverieTextPathData):
             # local: 
             for k, cand_vp in enumerate(traj_cand_vpids[-1]):
                 if cand_vp == gt_next_vp:
-                    local_act_labels = k + 1 # [stop] is 0
+                    local_act_label = k + 1 # [stop] is 0
                     break
         return global_act_label, local_act_label
 

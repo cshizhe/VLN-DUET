@@ -19,6 +19,10 @@ def load_instr_datasets(anno_dir, dataset, splits, tokenizer, is_test=True):
             if split == 'val_train_seen':
                 new_data = new_data[:50]
 
+            if not is_test:
+                if dataset == 'r4r' and split == 'val_unseen':
+                    ridxs = np.random.permutation(len(new_data))[:200]
+                    new_data = [new_data[ridx] for ridx in ridxs]
         else:   # augmented data
             print('\nLoading augmented data %s for pretraining...' % os.path.basename(split))
             with open(split) as f:
