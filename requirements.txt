@@ -7,4 +7,4 @@ torch==1.7.1+cu101
 networkx==2.5.1
 numpy==1.20.3
 tensorboardX==2.4.1
-transformers==4.12.5
+transformers==4.30.0
